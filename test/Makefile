@@ -1,0 +1,61 @@
+# 
+# This is the Makefile for Deputy tests
+# Use absolute paths only because we will include this file from 
+# other directories
+
+ifndef DEPUTYHOME
+  DEPUTYHOME = /home/atreyab/Documents/Projects/Academic/deupty/deputy-1.1
+  # On cygwin, we want to remove the colon
+  ifeq ($(ARCHOS),x86_WIN32)
+    DEPUTYHOME:=$(shell cygpath -u $(DEPUTYHOME)) 
+  endif
+endif
+
+DEPUTYDIR  := $(DEPUTYHOME)
+DEPUTY     := $(DEPUTYDIR)/bin/deputy
+OPTIONS    := --save-temps --strict-global-init $(EXTRAARGS) -g
+RUNALL     := $(DEPUTYDIR)/cil/ocamlutil/runall.pl
+
+$(DEPUTYHOME)/test/Makefile : $(DEPUTYHOME)/config.status \
+                             $(DEPUTYHOME)/test/Makefile.in
+	echo "Makefile out of date. Must run ./config.status."
+	cd $(DEPUTYHOME) && ./config.status
+
+Makefile: $(DEPUTYHOME)/test/Makefile
+
+# We'll use all optimizations unless you override OPT on the command line.
+OPT ?= 4
+OPTIONS += --opt=$(OPT)
+
+ifdef DEPVERBOSE
+	OPTIONS += --verbose
+endif
+ifdef PARSEOUT
+	OPTIONS += --parse-out=$(PARSEOUT)
+endif
+ifdef NOINFER
+	OPTIONS += --no-infer
+endif
+ifdef INFEROUT
+	OPTIONS += --infer-out=$(INFEROUT)
+endif
+
+INFERDETAIL := 3
+OPTIONS += --infer-out-detail=$(INFERDETAIL)
+ifdef BYTECODE
+	OPTIONS += --bytecode
+endif
+ifdef STATS
+        OPTIONS += --stats
+endif
+
+ifdef NODEPUTY
+  DEPUTY := gcc
+  OPTIONS := 
+endif
+
+small/%: small/%.c
+	$(MAKE) -C small runall/$*
+
+libc/%: libc/%.c
+	$(MAKE) -C libc runall/$*

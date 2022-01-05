@@ -1,0 +1,3 @@
+#!/bin/sh
+eval 'exec perl -S ./testdeputy.pl ${1+"$@"}'
+    if 0;

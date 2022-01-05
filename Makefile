@@ -1,0 +1,365 @@
+# Makefile for Deputy, based on the CIL Makefiles.
+# Jeremy Condit <jcondit@cs.berkeley.edu>
+#
+#
+# Please edit Makefile.in, not Makefile!
+
+ifndef ARCHOS
+  ARCHOS = x86_LINUX
+endif
+
+# It is important to build without NATIVECAML first,to generate the 
+# proper dependencies
+all: patch
+	$(MAKE) -C cil cillib NATIVECAML=
+ifndef BYTECODE
+	$(MAKE) -C cil cillib NATIVECAML=1
+endif
+	$(MAKE) deputy deputylib
+ifndef BYTECODE
+	$(MAKE) deputy deputylib NATIVECAML=1
+# For some strange reason the bytecode cil library is remade, which triggers
+# a remake of the deputy.byte.exe, but not the .asm.exe. This means that 
+# we keep using the bytecode version of deputy. We force the .asm version to 
+# be the most recent one
+	touch obj/$(ARCHOS)/deputy.asm.exe
+endif
+
+# Look out for outdated Makefile; if it's out of date, this will automatically
+# re-run ./config.status, then re-exec make with the same arguments.
+Makefile: config.status Makefile.in
+	@echo "Rebuilding the Makefile"
+	./$<
+
+config.status: configure
+	./$@ --recheck
+
+configure: configure.ac
+	autoconf
+
+
+DEPUTY_VERSION = 1.1
+
+ifdef RELEASE
+  UNSAFE := 1
+endif
+
+ifndef DEPUTYHOME
+  DEPUTYHOME = /home/atreyab/Documents/Projects/Academic/deupty/deputy-1.1
+endif
+
+ifeq (no, yes)
+  ifndef CVCLLIB
+    CVCLLIB = /usr/local/lib
+  endif
+  ifndef CVCLINC
+    CVCLINC = /usr/local/include
+  endif
+  ifndef OCAMLINC
+    OCAMLINC = /usr/lib/ocaml
+  endif
+endif
+
+#
+# Deputy executable
+#
+
+OBJDIR       = obj/$(ARCHOS)
+DEPENDDIR    = obj/.depend
+
+SOURCEDIRS   = src src/infer src/optimizer
+ifeq (no, yes)
+  SOURCEDIRS += src/optimizer/solver/cvclSolver
+else
+  SOURCEDIRS += src/optimizer/solver/nullSolver
+endif
+
+ifeq (no, yes)
+  SOURCEDIRS += src/optimizer/oct/mineOct
+else
+  SOURCEDIRS += src/optimizer/oct/nullOct
+endif
+
+MODULES = doptions dutil dattrs dcanonexp dcheckdef dsolverfront
+ifeq (no, yes)
+  MODULES += cvcl
+endif
+MODULES      += solverInterface ptrnode unionfind dvararg markptr \
+                type solver controlflow inferkinds \
+                doptimutil dpatch dprecfinder \
+                dflowinsens dflowsens dfwdsubst ddupcelim \
+                dloopoptim dcheckstrengthen dcheckhoister doctanalysis\
+                dnonnullfinder\
+		doptimmain dglobinit dlocals dpoly dcheck dinfer main
+
+COMPILEFLAGS = -I cil/obj/$(ARCHOS)
+LINKFLAGS    = -I cil/obj/$(ARCHOS)
+
+ifeq (no, yes)
+  COMPILEFLAGS += -I /usr/lib/ocaml/oct
+  LINKFLAGS    += -I /usr/lib/ocaml/oct
+endif
+
+ifeq (no, yes)
+  ifdef NATIVECAML
+    ENDLINKFLAGS = -cclib -L$(CVCLLIB) -cclib -lcvclite -cclib -lstdc++ -cclib -lgmp
+  else
+    ENDLINKFLAGS = -cclib -L$(CVCLLIB) -cclib -lcvclite -cclib -lstdc++ -cclib -lgmp
+  endif
+else
+  ENDLINKFLAGS =
+endif
+
+ifeq (no, yes)
+  CAML_CFLAGS += -ccopt -I$(OCAMLINC) -ccopt -I$(CVCLINC)
+endif
+
+include cil/ocamlutil/Makefile.ocaml
+
+PROJECT_EXECUTABLE = $(OBJDIR)/deputy$(EXE)
+PROJECT_MODULES    = $(MODULES)
+ifeq (no, yes)
+  PROJECT_CMODULES = cvcl_ocaml_wrappers
+else
+  PROJECT_CMODULES = 
+endif
+PROJECT_LIBS       = unix str cil
+
+ifeq (no, yes)
+  # This may need to be other things depending on
+  # the type of system. Look at error messages, and
+  # make the appropriate changes.
+  PROJECT_LIBS += oct_iag
+endif
+
+# find the cil library
+vpath %.$(CMXA) cil/obj/$(ARCHOS)
+
+# Make sure that the Deputy files depend on the CIL library
+# Choose just one file on which everybody depends
+$(OBJDIR)/doptions.$(CMO): cil.$(CMXA)
+$(OBJDIR)/markptr.cmi $(OBJDIR)/ptrnode.cmi $(OBJDIR)/inferkinds.cmi: \
+        cil/obj/$(ARCHOS)/cil.cmi
+
+$(PROJECT_EXECUTABLE) : $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
+                        $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(CMC)) \
+                        cil.$(CMXA)
+	@$(NARRATIVE) "Linking $(COMPILETOWHAT) $@ $(LINKMSG)"
+	$(AT)$(CAMLLINK) -verbose -o $@ \
+                    $(PROJECT_LIBS:%=%.$(CMXA)) \
+                    $(PROJECT_MODULES:%=$(OBJDIR)/%.$(CMO)) \
+                    $(PROJECT_CMODULES:%=$(OBJDIR)/%.$(CMC)) \
+                    $(ENDLINKFLAGS)
+
+deputy: $(PROJECT_EXECUTABLE)
+
+#
+# Deputy runtime library
+#
+
+include cil/Makefile.gcc
+
+DEPUTY_LIBC       =  $(OBJDIR)/deputy_libc.$(OBJ)
+DEPUTY_LIBC_DEBUG =  $(OBJDIR)/deputy_libc_debug.$(OBJ)
+DEPUTY_LINUX = $(OBJDIR)/deputy_linux.$(OBJ)
+
+$(DEPUTY_LIBC): lib/deputy_libc.c include/deputy/checks.h
+	$(CC) $(CONLY) -g -O3 -D_GNUCC $(WARNALL) \
+              $(INC)$(DEPUTYHOME)/include $(OBJOUT)$@ $<
+
+ifeq (no, yes) # USE_LINUX
+LINUX_DIR = 
+$(DEPUTY_LINUX): lib/deputy_linux.c
+	$(CC) -O -g -D__KERNEL__ \
+	-I$(LINUX_DIR)/include \
+	-I$(LINUX_DIR)/include/asm-i386/mach-default \
+	-Iinclude \
+	-include $(LINUX_DIR)/include/linux/nodeputy.h \
+	$(CONLY) $(OBJOUT)$@ $^
+else
+$(DEPUTY_LINUX): lib/deputy_linux.c
+endif
+
+deputylib: $(DEPUTY_LIBC) $(DEPUTY_LINUX)
+
+#
+# Patched libc includes
+#
+
+PATCH = $(DEPUTYHOME)/include/libc_patch.h
+PATCH_PP = $(PATCH:.h=.i)
+
+$(PATCH_PP): $(PATCH)
+	$(CC) -E -include $(DEPUTYHOME)/include/deputy/annots.h -o $@ $^
+
+.PHONY: patch
+patch: $(PATCH_PP)
+
+#
+# Testing and cleanup
+#
+
+quicktest: 
+	cd test/small && make runall/deref1 runall/infer1 && \
+	  echo && echo "*** Quicktest was successful" && echo
+
+clean:
+	rm -f $(OBJDIR)/*.* $(DEPENDDIR)/*.* src/optimizer/solverInterface.ml
+
+realclean: cleancaml
+	cd cil && make clean
+
+#
+# Distribution
+#
+
+# Make a distribution that excludes certain files.  We exclude the
+# toplevel Makefile from here, since otherwise it's difficult to avoid
+# excluding *all* Makefiles, which would be bad.
+dist: realclean
+	cd .. && mv deputy deputy-$(DEPUTY_VERSION) && \
+	tar zcvf deputy-$(DEPUTY_VERSION).tar.gz \
+	  --exclude-from deputy-$(DEPUTY_VERSION)/.distexclude \
+	  --exclude deputy-$(DEPUTY_VERSION)/Makefile \
+	  deputy-$(DEPUTY_VERSION) && \
+	mv deputy-$(DEPUTY_VERSION) deputy
+
+#
+# Documentation
+#
+#  make doc         - creates the documentation
+#  make publish_doc - creates the documentation and puts it on the web page
+#
+
+doc/deputy.1.gz: doc/deputy.1
+	gzip -c $< > $@
+
+doc/deputypp.tex: doc/deputycode.pl doc/deputy.tex 
+	-rm -rf doc/html/deputy
+	-mkdir doc/html/deputy
+	-mkdir doc/html/deputy/examples
+	cd doc; perl deputycode.pl deputy.tex deputypp.tex
+
+# Documentation generated from latex files using "hevea"
+texdoc: doc/deputypp.tex
+# Create the version document
+	cd doc/html/deputy; echo "\def\deputyversion{1.1}">deputy.version.tex
+	cd doc/html/deputy; hevea -exec xxdate.exe ../../deputypp
+	cd doc/html/deputy; hevea -exec xxdate.exe ../../deputypp
+	cd doc/html/deputy; mv deputypp.html deputy.html
+	cd doc/html/deputy; hacha -o deputytoc.html deputy.html
+	cp -f doc/index.html doc/html/deputy/index.html
+	cp -f doc/header.html doc/html/deputy
+
+pdfdoc: doc/deputypp.tex
+	cd doc; echo "\def\deputyversion{1.1}" >deputy.version.tex
+	cd doc; pdflatex deputypp.tex
+	cd doc; mv deputypp.pdf html/deputy/DEPUTY.pdf
+
+.PHONY: doc texdoc pdfdoc
+doc: texdoc pdfdoc
+
+DEPUTY_HTML_DEST = /var/www/deputy
+publish_distrib: publish_doc
+
+publish_doc: doc
+	if test -d $(DEPUTY_HTML_DEST); then \
+           cp -rf doc/html/deputy/* $(DEPUTY_HTML_DEST); \
+           echo "Done publishing doc"; \
+	else \
+	   error "Cannot publish because $(DEPUTY_HTML_DEST) does not exist" ; \
+        fi
+
+#
+# Installation
+#
+
+INSTALL = /usr/bin/install -c
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_PROGRAM = ${INSTALL}
+
+BINDISTRIB_BIN = bin/deputy $(OBJDIR)/deputy.asm.exe $(OBJDIR)/deputy.byte.exe
+BINDISTRIB_LIB = lib/Deputy.pm cil/bin/CilConfig.pm cil/lib/Cilly.pm \
+		 cil/lib/KeptFile.pm cil/lib/TempFile.pm cil/lib/OutputFile.pm \
+		 $(OBJDIR)/deputy_libc.o
+BINDISTRIB_INCLUDE = include/libc_patch.i
+BINDISTRIB_INCLUDE_DEPUTY = include/deputy/annots.h include/deputy/checks.h
+
+BINDISTRIB_ALL = $(BINDISTRIB_BIN) $(BINDISTRIB_LIB) \
+		 $(BINDISTRIB_INCLUDE) $(BINDISTRIB_INCLUDE_DEPUTY)
+
+prefix = /usr/local
+exec_prefix = ${prefix}
+libdir = ${exec_prefix}/lib
+pkglibdir = $(libdir)/deputy
+
+install-base: $(BINDISTRIB_ALL)
+	$(INSTALL) -d $(DESTDIR)$(prefix)/bin
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/bin
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/lib
+	$(INSTALL) -d $(DESTDIR)$(pkglibdir)/include/deputy
+	$(INSTALL_PROGRAM) $(BINDISTRIB_BIN) $(DESTDIR)$(pkglibdir)/bin
+	$(INSTALL_DATA) $(BINDISTRIB_LIB) $(DESTDIR)$(pkglibdir)/lib
+	$(INSTALL_DATA) $(BINDISTRIB_INCLUDE) $(DESTDIR)$(pkglibdir)/include
+	$(INSTALL_DATA) $(BINDISTRIB_INCLUDE_DEPUTY) \
+			$(DESTDIR)$(pkglibdir)/include/deputy
+	ln -s ../lib/deputy/bin/deputy $(DESTDIR)$(prefix)/bin/deputy
+
+# We handle the man page separately, since Debian has its own utility
+# for installing man pages, whereas RPM wants us to do it.
+
+BINDISTRIB_MAN = doc/deputy.1.gz
+
+install-man: $(BINDISTRIB_MAN)
+	$(INSTALL) -d $(DESTDIR)$(prefix)/man/man1
+	$(INSTALL_DATA) $(BINDISTRIB_MAN) $(DESTDIR)$(prefix)/man/man1
+
+# And now for normal users who want everything installed...
+
+install: install-base install-man
+
+#
+# Install the web interface
+#
+
+installweb: all $(DEPUTY_HTML_DEST)
+# Copy over the files needed for running Deputy
+	mkdir -p $(DEPUTY_HTML_DEST)/bin
+	cp bin/deputy $(DEPUTY_HTML_DEST)/bin
+	mkdir -p $(DEPUTY_HTML_DEST)/cil
+	mkdir -p $(DEPUTY_HTML_DEST)/cil/bin
+# Now copy over CilConfig.pm but change the directory names
+	cat cil/bin/CilConfig.pm \
+             | sed -e 's|/home/atreyab/Documents/Projects/Academic/deupty/deputy-1.1|$(DEPUTY_HTML_DEST)|g' \
+              >$(DEPUTY_HTML_DEST)/cil/bin/CilConfig.pm
+
+	mkdir -p $(DEPUTY_HTML_DEST)/obj/x86_LINUX
+	cp $(foreach f, deputy.asm.exe deputy_libc.o, \
+                     obj/x86_LINUX/$(f)) \
+           $(DEPUTY_HTML_DEST)/obj/x86_LINUX
+
+	mkdir -p $(DEPUTY_HTML_DEST)/cil/lib
+	cp $(foreach f, Cilly.pm KeptFile.pm \
+                        TempFile.pm OutputFile.pm, \
+                     cil/lib/$(f)) \
+          $(DEPUTY_HTML_DEST)/cil/lib
+
+	mkdir -p $(DEPUTY_HTML_DEST)/lib
+	cp lib/Deputy.pm $(DEPUTY_HTML_DEST)/lib
+
+	mkdir -p $(DEPUTY_HTML_DEST)/include
+	cp -r include $(DEPUTY_HTML_DEST)
+
+	mkdir -p $(DEPUTY_HTML_DEST)/web/tmp
+	chmod a+wx $(DEPUTY_HTML_DEST)/web/tmp
+	cp $(foreach f, .htaccess web-driver.cgi index.html, \
+                     web/$(f)) \
+           $(DEPUTY_HTML_DEST)/web
+	chmod a+x $(DEPUTY_HTML_DEST)/web/web-driver.cgi
+
+	mkdir -p $(DEPUTY_HTML_DEST)/test/small
+	chmod a+w $(DEPUTY_HTML_DEST)/test/small
+	cp $(foreach f, array2.c, \
+                     test/small/$(f)) \
+           $(DEPUTY_HTML_DEST)/test/small

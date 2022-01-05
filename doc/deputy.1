@@ -1,0 +1,50 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.TH DEPUTY 1 "January 10, 2007"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+deputy \- Advanced C compiler that enforces type and memory safety
+.SH SYNOPSIS
+.B deputy
+.RI [ options ] " files" ...
+.SH DESCRIPTION
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+Deputy is an advanced C compiler that enforces type and memory safety
+in existing C programs.  The programmer must add type annotations that
+describe, for example, the bounds of each pointer in terms of other
+program variables.  Deputy uses static analysis and run-time checks to
+enforce safety based on these annotations.
+.PP
+Further information and documentation is available at
+\fBhttp://deputy.cs.berkeley.edu/\fP.
+.SH OPTIONS
+The \fBdeputy\fP command is designed to be a drop-in replacement for
+\fBgcc\fP, so most of the standard options for \fBgcc\fP should work
+as expected.  Further information can be found at the URL above and
+by using the following commands:
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.SH SEE ALSO
+.BR gcc (1).
+.SH AUTHOR
+Deputy was written by Jeremy Condit <jcondit@cs.berkeley.edu>, Matthew
+Harren <matth@cs.berkeley.edu>, Zachary Anderson <zra@cs.berkeley.edu>,
+and George C. Necula <necula@cs.berkeley.edu>.
+.PP
+This manual page was written by Jeremy Condit <jcondit@cs.berkeley.edu>.

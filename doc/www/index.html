@@ -1,0 +1,108 @@
+<html>
+
+<head>
+<title>Deputy</title>
+<link rel="stylesheet" type="text/css" href="deputy.css"/>
+</head>
+
+<body>
+<div id="frame">
+
+<h1 align="center">Deputy</h1>
+
+<hr/>
+
+<h3>What is Deputy?</h3>
+
+<p>Deputy is a C compiler that is capable of preventing common C
+programming errors, including out-of-bounds memory accesses as well as
+many other common type-safety errors.  It is designed to work on
+real-world code, up to and including the Linux kernel itself.</p>
+
+<p>Deputy allows C programmers to provide simple type annotations that
+describe pointer bounds and other important program invariants.  Deputy
+verifies that your program adheres to these invariants through a
+combination of compile-time and run-time checking.</p>
+
+<p>Unlike other tools for checking C code, Deputy provides a flexible
+annotation language that allows you to describe many common programming
+idioms without changing your data structures.  As a result, using Deputy
+requires less programmer effort than other tools.  In fact, code compiled
+with Deputy can be linked directly with code compiled by other C
+compilers, so you can choose exactly when and where to use Deputy within
+your C project.</p>
+
+<p>Deputy is implemented using the <a
+href="http://hal.cs.berkeley.edu/cil/">CIL</a> infrastructure for C
+program analysis and transformation.</p>
+
+<hr/>
+
+<h3>Download</h3>
+
+<p>Deputy is currently available as a Debian package, an RPM, or a source
+distribution:</p>
+
+<ul>
+<li>Debian: <a href="deputy_1.1-1_i386.deb">deputy_1.1-1_i386.deb</a></li>
+<li>RPM: <a href="deputy-1.1-1.i386.rpm">deputy-1.1-1.i386.rpm</a></li>
+<li>Source: <a href="deputy-1.1.tar.gz">deputy-1.1.tar.gz</a></li>
+</ul>
+
+<p>If you choose to download the source distribution, you will need the <a
+href="http://caml.inria.fr/">OCaml compiler</a> to build Deputy.</p>
+
+<p>Deputy is currently being developed for Linux and Cygwin on x86
+processors.  Other platforms and processors should work as well but may
+require additional effort to build.  (Please feel free to <a
+href="mailto:deputy@deputy.cs.berkeley.edu">submit</a> comments and/or
+patches for other platforms!)</p>
+
+<hr/>
+
+<h3>Documentation</h3>
+
+<ul>
+<li><a href="quickref.html">Quick Reference</a></li>
+<li><a href="manual.html">Manual</a></li>
+</ul>
+
+<hr/>
+
+<h3>Papers</h3>
+
+<p>Further information about Deputy and its uses can be found in the
+following papers:</p>
+
+<ul>
+
+<li>Jeremy Condit, Matthew Harren, Zachary Anderson, David Gay, and George
+Necula.  <i>Dependent Types for Low-Level Programming.</i> UC Berkeley
+Technical Report EECS-2006-129. [<a
+href="deputy-tr-2006.pdf">pdf</a>]</li>
+
+<li>Feng Zhou, Jeremy Condit, Zachary Anderson, Ilya Bagrak, Rob Ennals,
+Matthew Harren, George Necula, and Eric Brewer.  <i>SafeDrive: Safe and
+Recoverable Extensions Using Language-Based Techniques.</i> OSDI 2006.
+[<a href="safedrive-osdi-2006.pdf">pdf</a>]</li>
+
+</ul>
+
+<hr/>
+
+<h3>Contact</h3>
+
+<p>Please send questions and feedback to the Deputy team at <a
+href="mailto:deputy@deputy.cs.berkeley.edu">deputy@deputy.cs.berkeley.edu</a>.
+We welcome any comments you have about your experience using Deputy and
+your suggestions for improving it!</p>
+
+<p>Deputy was written by Jeremy Condit, Matt Harren, Zach Anderson, and
+George Necula.  Many thanks to Feng Zhou, Rob Ennals, David Gay, Ilya
+Bagrak, Bill McCloskey, and Eric Brewer for valuable discussions and
+feedback.</p>
+
+</div>
+
+</body>
+</html>
