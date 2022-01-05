@@ -310,18 +310,18 @@ void * (DMEMCPY(1, 2, 3) memmove)(void *dst, void* src, size_t sz);
 void bzero(void * COUNT(size) buff, unsigned int size);
 
 STRING strncpy(STRINGBUF(n) dest, const STRING src, size_t n);
-STRING __builtin_strncpy(STRINGBUF(n) dest, const STRING src, size_t n);
+// STRING __builtin_strncpy(STRINGBUF(n) dest, const STRING src, size_t n);
 
 int  strcmp(const STRING s1, const STRING s2);
 int  __builtin_strcmp(const STRING s1, const STRING s2);
 
 int  strncmp(const STRING s1, const STRING s2, size_t n);
-int  __builtin_strncmp(const STRING s1, const STRING s2, size_t n);
+// int  __builtin_strncmp(const STRING s1, const STRING s2, size_t n);
 
 size_t strlcpy(STRINGBUF(siz-1) dst, const STRING src, size_t siz);
 
 STRING strncat(STRINGBUF(n) dest, const STRING src, size_t n);
-STRING __builtin_strncat(STRINGBUF(n) dest, const STRING src, size_t n);
+// STRING __builtin_strncat(STRINGBUF(n) dest, const STRING src, size_t n);
 
 size_t strlcat(STRINGBUF(n-1) dest, const STRING src, size_t n);
 
@@ -334,14 +334,14 @@ OPTSTRING strpbrk(const STRING str, const STRING accept_arg);
 OPTSTRING strsep(char * NTS * NT stringp, const STRING delim);
 
 size_t strspn(const STRING str, const STRING charset);
-size_t __builtin_strspn(const STRING str, const STRING charset);
+// size_t __builtin_strspn(const STRING str, const STRING charset);
 
 size_t __strspn_c1(const STRING str, int accept1);
 size_t __strspn_c2(const STRING str, int accept1, int accept2);
 size_t __strspn_c3(const STRING str, int accept1, int accept2, int accept3);
 
 size_t strcspn(const STRING str, const STRING charset);
-size_t __builtin_strcspn(const STRING str, const STRING charset);
+// size_t __builtin_strcspn(const STRING str, const STRING charset);
 
 size_t __strcspn_c1(const STRING str, int reject1);
 size_t __strcspn_c2(const STRING str, int reject1, int reject2);

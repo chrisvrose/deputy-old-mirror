@@ -295,18 +295,18 @@ void * (__attribute__((dmemcpy((1),(2),(3)))) memmove)(void *dst, void* src, siz
 void bzero(void * __attribute__((bounds((__this),(__this + (size))))) buff, unsigned int size);
 
 char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) strncpy(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (n))))) __attribute__((nonnull)) dest, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t n);
-char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) __builtin_strncpy(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (n))))) __attribute__((nonnull)) dest, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t n);
+
 
 int strcmp(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s1, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s2);
 int __builtin_strcmp(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s1, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s2);
 
 int strncmp(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s1, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s2, size_t n);
-int __builtin_strncmp(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s1, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) s2, size_t n);
+
 
 size_t strlcpy(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (siz-1))))) __attribute__((nonnull)) dst, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t siz);
 
 char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) strncat(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (n))))) __attribute__((nonnull)) dest, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t n);
-char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) __builtin_strncat(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (n))))) __attribute__((nonnull)) dest, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t n);
+
 
 size_t strlcat(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (n-1))))) __attribute__((nonnull)) dest, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) src, size_t n);
 
@@ -319,14 +319,14 @@ char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))
 char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) strsep(char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) * __attribute__((nullterm)) stringp, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) delim);
 
 size_t strspn(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) charset);
-size_t __builtin_strspn(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) charset);
+
 
 size_t __strspn_c1(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, int accept1);
 size_t __strspn_c2(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, int accept1, int accept2);
 size_t __strspn_c3(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, int accept1, int accept2, int accept3);
 
 size_t strcspn(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) charset);
-size_t __builtin_strcspn(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) charset);
+
 
 size_t __strcspn_c1(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, int reject1);
 size_t __strcspn_c2(const char * __attribute__((nullterm)) __attribute__((bounds((__this),(__this + (0))))) __attribute__((nonnull)) str, int reject1, int reject2);
